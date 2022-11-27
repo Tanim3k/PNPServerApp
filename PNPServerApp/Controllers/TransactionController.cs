@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PNPServerApp.FilterModels;
 using PNPServerApp.Interfaces;
 using PNPServerApp.Models;
 
@@ -34,16 +35,16 @@ namespace PNPServerApp.Controllers
         }
 
         [Authorize]
-        [HttpGet, Route("GetTransaction/{accountId?}/{transactionDate?}")]
-        public async Task<IActionResult> GetTransaction(int? accountId, DateTime? transactionDate)
+        [HttpPost, Route("GetTransactions")]
+        public async Task<IActionResult> GetTransactions(TransactionFilterModel transactionFilterModel)
         {
             var user = usersService.GetCurrentUser();
 
             if (user == null) return Unauthorized();
 
-            var transactions = transactionService.GetAllTransactions(accountId, transactionDate);
+            var (transactions, count) = transactionService.GetAllTransactions(transactionFilterModel);
 
-            return Ok(transactions);
+            return Ok(new { transactions, count });
         }
     }
 }
