@@ -35,7 +35,7 @@ namespace PNPServerApp.Services
             return transactionModel;
         }
 
-        public List<TransactionModel> GetAllTransactions(int? accountId)
+        public List<TransactionModel> GetAllTransactions(int? accountId, DateTime? transactionDate)
         {
             var user = GetCurrentUser();
 
@@ -43,7 +43,7 @@ namespace PNPServerApp.Services
 
             var transactions = new List<TransactionModel>();
 
-            if (accountId != null)
+            if (accountId != null && accountId != 0)
             {
                 var account = user.Accounts.FirstOrDefault(m => m.Id == accountId);
 
@@ -58,6 +58,11 @@ namespace PNPServerApp.Services
                 {
                     transactions.AddRange(account.Transactions);
                 }
+            }
+
+            if (transactionDate != null)
+            {
+                transactions = transactions.Where(m => m.TransactionDate == transactionDate).ToList();
             }
 
             return transactions;

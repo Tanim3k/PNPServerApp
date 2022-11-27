@@ -27,21 +27,21 @@ namespace PNPServerApp.Controllers
         {
             var user = usersService.GetCurrentUser();
 
-            if (user == null) return BadRequest("User not found");
+            if (user == null) return Unauthorized();
             var account = transactionService.CreateTransaction(transactionCreateModel);
 
             return account == null ? BadRequest() : Ok(account);
         }
 
         [Authorize]
-        [HttpGet, Route("GetTransaction/{accountId?}")]
-        public async Task<IActionResult> GetTransaction(int? accountId)
+        [HttpGet, Route("GetTransaction/{accountId?}/{transactionDate?}")]
+        public async Task<IActionResult> GetTransaction(int? accountId, DateTime? transactionDate)
         {
             var user = usersService.GetCurrentUser();
 
-            if (user == null) return BadRequest("User not found");
+            if (user == null) return Unauthorized();
 
-            var transactions = transactionService.GetAllTransactions(accountId);
+            var transactions = transactionService.GetAllTransactions(accountId, transactionDate);
 
             return Ok(transactions);
         }

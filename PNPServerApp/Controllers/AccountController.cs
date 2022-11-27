@@ -27,7 +27,7 @@ namespace PNPServerApp.Controllers
         {
             var user = usersService.GetCurrentUser();
 
-            if (user == null) return BadRequest("User not found");
+            if (user == null) return Unauthorized();
             var account = accountService.CreateAccount(accountCreateModel);
 
             return account == null ? BadRequest() : Ok(account);
