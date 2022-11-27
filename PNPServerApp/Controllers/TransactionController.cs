@@ -34,7 +34,7 @@ namespace PNPServerApp.Controllers
         }
 
         [Authorize]
-        [HttpGet, Route("GetTransaction/{accountId}")]
+        [HttpGet, Route("GetTransaction/{accountId?}")]
         public async Task<IActionResult> GetTransaction(int? accountId)
         {
             var user = usersService.GetCurrentUser();
