@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using PNPServerApp.Interfaces;
 using PNPServerApp.Models;
 using System.Configuration;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace PNPServerApp.Controllers
@@ -13,39 +17,47 @@ namespace PNPServerApp.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IConfiguration configuration;
+        private readonly IUsersService usersService;
+        private readonly IJWTService jWTService;
 
-        private readonly IConfiguration _configuration;
-
-        public AuthController(IConfiguration configuration)
+        public AuthController(IConfiguration configuration, IUsersService usersService, IJWTService jWTService)
         {
-            _configuration = configuration;
+            this.configuration = configuration;
+            this.usersService = usersService;
+            this.jWTService = jWTService;
         }
 
         [HttpPost, Route("login")]
-        public IActionResult Login([FromBody]UserModel user)
+        public async Task<IActionResult> Login([FromBody]UserCreateModel user)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            if (user == null)  return BadRequest(ModelState);
+            if (user == null || !user.UserName.Any() || !user.Password.Any()) return BadRequest(ModelState);
 
-            if (user.UserName == "test" && user.Password == "test")
+            var registerUser = usersService.GetUserByUserName(user.UserName);
+
+            if (registerUser == null) return BadRequest(ModelState);
+
+            if (usersService.VerifyPasswordHash(user.Password, registerUser.PasswordHash, registerUser.PasswordSalt))
             {
-                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])); 
-                var signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256Signature);
-
-                var tokenOptions = new JwtSecurityToken(
-                    issuer: _configuration["Jwt:Issuer"],
-                    //audience: _configuration["Jwt:Audience"],
-                    claims: new List<Claim>(),
-                    expires: DateTime.Now.AddMinutes(5),
-                    signingCredentials: signingCredentials
-                    );
-
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+                string tokenString = jWTService.CreateToken(registerUser);
                 return Ok(new { Token = tokenString });
             }
 
             return BadRequest();
+        }
+
+        [HttpPost, Route("register")]
+        public async Task<IActionResult> Register([FromBody] UserCreateModel request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            if (request == null || !request.UserName.Any() || !request.Password.Any()) return BadRequest(ModelState);
+
+            var user = usersService.CreateUser(request);
+
+            return Ok(user);
         }
     }
 }
