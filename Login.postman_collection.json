@@ -255,9 +255,6 @@
 					}
 				}
 			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -269,7 +266,7 @@
 						}
 					]
 				},
-				"method": "GET",
+				"method": "POST",
 				"header": [
 					{
 						"key": "Content-Type",
@@ -279,17 +276,76 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": ""
+					"raw": "{\r\n    \"transactionDate\": \"2022-11-27\",\r\n   \"page\" : 1,\r\n   \"index\": 1 \r\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/api/transaction/GetTransaction/",
+					"raw": "{{baseurl}}/api/transaction/GetTransactions",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
 						"api",
 						"transaction",
-						"GetTransaction",
+						"GetTransactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get ALL Transaction",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/api/transaction/GetTransactions/",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"api",
+						"transaction",
+						"GetTransactions",
 						""
 					]
 				}
